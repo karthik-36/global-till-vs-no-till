@@ -7,6 +7,25 @@
 
 }
 
+
+#countryContainer {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  top: 30px;
+  margin: .4rem;
+  font: 1rem 'Fira Sans', sans-serif;
+}
+
+#country {
+  
+  width: 14%;
+  text-align: center;
+  top: 30px;
+  margin: .4rem;
+  font: 1rem 'Fira Sans', sans-serif;
+}
+
 .slidecontainer {
   position: absolute;
   width: 100%;

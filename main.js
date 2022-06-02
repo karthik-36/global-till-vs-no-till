@@ -25,8 +25,8 @@ function checkClickPop(mode) {
   document.getElementById('popSlider').style.display = 'none'
   document.getElementById('tempSlider').style.display = ''
 
-  document.getElementById('popLegend').style.display = 'none'
-  document.getElementById('tempLegend').style.display = ''
+  document.getElementById('popLegend').style.display = ''
+  document.getElementById('tempLegend').style.display = 'none'
 
   let radio = document.getElementById('temprature')
   radio.checked = false;
@@ -321,11 +321,9 @@ function convertRange(value, r1, r2) {
 
 
 let createPop = function (year) {
-  console.log(" inside " + year);
-  console.log("year1 " + year);
+
   year = convertRange(year, [1950, 2021], [0.3, 1]);
-  console.log("year " + year);
-  console.log("\n");
+
 
   scene.remove(groupCities);
   groupCities = new THREE.Group();
@@ -381,7 +379,6 @@ groupCities2.add(center);
 let createTemp = function (year) {
 
 
-  console.log("inside  " + year);
   scene.remove(groupCities2);
   groupCities2 = new THREE.Group();
 
@@ -476,7 +473,6 @@ output.innerHTML = "<b> 2012-" + slider.value + "-01" + " </b>  &nbsp;&nbsp;&nbs
 
 slider.oninput = function () {
   output.innerHTML = "<b> 2012-" + this.value + "-01" + " </b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    Max : 2012-12-01";
-  console.log(this.value + " yay temp");
   createTemp(this.value);
 
 }
@@ -489,7 +485,6 @@ output2.innerHTML = "<b>" + slider2.value + " </b>   &nbsp;&nbsp;&nbsp;&nbsp;&nb
 
 slider2.oninput = function () {
   output2.innerHTML = "<b>" + this.value + " </b>   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;     Max : 2021"
-  console.log("yay pop" + this.value);
   createPop(this.value);
 
 }
@@ -523,15 +518,32 @@ let cameraAnimate = function (lat , lng , camera) {
     .normalize()
     .multiplyScalar(camDistance)
   // animate from start to end
+  
   TweenMax.to(camera.position, 1, {
     x: a, y: b, z: c, onUpdate: () => {
-      console.log(camera);
-     // camera.controls.update()
+      console.log(center);
+      camera.lookAt(center.position);
     }
   })
 }
 
 //cameraAnimate(20.5937, 78.9629 , camera );
+const selectElement = document.getElementById('country');
+console.log(selectElement);
+selectElement.addEventListener('change', (event) => {
+
+  let val = event.target.value;
+  for(let i = 0 ; i < allCountries.length ; i++){
+  //  console.log(allCountries[i].alpha2);
+    if(allCountries[i].alpha2 == val){
+      //alert("found" + allCountries[i]);
+   //   console.log(allCountries[i]);
+      cameraAnimate(allCountries[i].latitude, allCountries[i].longitude , camera );
+      break;
+    }
+  }
+
+});
 
 animate();
 
