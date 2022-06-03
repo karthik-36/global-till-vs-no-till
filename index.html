@@ -6,18 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Karthik's earth</title>
   </head>
-  <body>
-    <div id="app"></div>
+  
+    <div style="margin : -20px !important; "  id="app"></div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
 
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="/style.css" />
     <img id = "tempLegend" src="legendTemp.png" alt="legend" width="160" height="115">
     <img id = "popLegend" src="legendpop.png" alt="legend" width="240" height="125">
-    <div class="slidecontainer">
-      <div style="display: inline-block; width: 10%;">
-        <fieldset>
+    <div  class="slidecontainer">
+      <div id = "centerHolder" style="display: inline-block; width: 33%; ">
+      </div>
+      <div style="display: inline-block; width: 11%; ">
+        <fieldset style="text-align: left; border: 2px solid white">
           <legend style="color: #ffffff;">Select a Mode</legend>
 
           <div>
@@ -456,5 +458,5 @@
         console.log('Executing action ' + mainMode)
       }
     </script> -->
-  </body>
+  
 </html>

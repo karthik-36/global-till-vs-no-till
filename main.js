@@ -14,13 +14,19 @@ import atmosphereFragmentShader from './shaders/atmosphereFragment.glsl'
 
 document.getElementById("population").addEventListener("click", checkClickPop);
 document.getElementById("temprature").addEventListener("click", checkClickTemp);
+document.getElementById('popSlider').style.display = 'none'
+document.getElementById('tempLegend').style.display = 'none'
+document.getElementById('tempSlider').style.display = 'none'
+document.getElementById('popLegend').style.display = 'none'
+
+const centerHolder = document.getElementById('centerHolder');
+
 
 var mainMode = 'population';
 function checkClickPop(mode) {
+
+  centerHolder.remove();
   console.log("population clicked");
-
-
-
 
   document.getElementById('popSlider').style.display = 'none'
   document.getElementById('tempSlider').style.display = ''
@@ -42,6 +48,8 @@ function checkClickPop(mode) {
 
 
 function checkClickTemp(mode) {
+
+  centerHolder.remove();
   console.log("temp clicked");
 
   document.getElementById('popSlider').style.display = ''
@@ -144,7 +152,8 @@ const renderer = new THREE.WebGLRenderer({
 
 
 const controls = new OrbitControls(camera, renderer.domElement)
-
+controls.enablePan = false;
+controls.minDistance = 7;
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio)
 
