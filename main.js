@@ -12,15 +12,41 @@ import atmosphereVertexShader from './shaders/atmosphereVertex.glsl'
 import atmosphereFragmentShader from './shaders/atmosphereFragment.glsl'
 
 
-document.getElementById("population").addEventListener("click", checkClickPop);
-document.getElementById("temprature").addEventListener("click", checkClickTemp);
+document.getElementById("populationRadio").addEventListener("click", checkClickPop);
+document.getElementById("tempratureRadio").addEventListener("click", checkClickTemp);
 document.getElementById('popSlider').style.display = 'none'
 document.getElementById('tempLegend').style.display = 'none'
 document.getElementById('tempSlider').style.display = 'none'
 document.getElementById('popLegend').style.display = 'none'
 
 const centerHolder = document.getElementById('centerHolder');
+var raycaster = new THREE.Raycaster();
+var mouse = new THREE.Vector2();
 
+window.addEventListener('click', onDocumentMouseDown, false);
+
+function onDocumentMouseDown( event ) {
+
+  event.preventDefault();
+
+  mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+  mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+
+  raycaster.setFromCamera( mouse, camera );
+
+  var intersects = raycaster.intersectObjects(scene.children); 
+  
+  if ( intersects.length > 0 ) {
+
+    for(let i = 0 ; i < intersects.length ; i++){
+      console.log(intersects[i].object);
+    }
+    
+     // intersects[0].object.callback();
+
+  }
+
+}
 
 var mainMode = 'population';
 function checkClickPop(mode) {
@@ -34,10 +60,21 @@ function checkClickPop(mode) {
   document.getElementById('popLegend').style.display = ''
   document.getElementById('tempLegend').style.display = 'none'
 
-  let radio = document.getElementById('temprature')
+
+
+
+  console.log(document.getElementById("populationRadio").checked);
+
+  let radio = document.getElementById('tempratureRadio')
   radio.checked = false;
-  radio = document.getElementById('population')
+  radio.setAttribute("style" , "background : #FFFFF;");
+  radio = document.getElementById('populationRadio')
+  radio.setAttribute("style" , "background : #4CAF50;   outline : 2px dashed rgb(96, 255, 117);");
   radio.checked = true;
+
+
+  //  let radio = document.getElementById('populationRadio')
+  // radio.setAttribute("checked" , true);
   mainMode = 'population';
 
 
@@ -59,10 +96,12 @@ function checkClickTemp(mode) {
   document.getElementById('popLegend').style.display = 'none'
   document.getElementById('tempLegend').style.display = ''
 
-  let radio = document.getElementById('population')
-  radio.checked = false;
-  radio = document.getElementById('temprature')
+  let radio = document.getElementById('populationRadio')
+  radio.setAttribute("style" , "background : #FFFFF;");
+  radio = document.getElementById('tempratureRadio')
+  radio.setAttribute("style" , "background : #4CAF50;   outline : 2px dashed rgb(96, 255, 117);");
   radio.checked = true;
+
   mainMode = 'temprature';
 
 
@@ -83,7 +122,6 @@ for (let i = allTemprature.length - 1; i != -1; i--) {
   if (!tempMap.has(allTemprature[i].City + "_" + postFix)) {
     tempMap.set(allTemprature[i].City + "_" + postFix, allTemprature[i])
   }
-
 }
 
 console.log(tempMap);
@@ -194,10 +232,6 @@ scene.add(atmosphere);
 camera.position.z = 15;
 
 
-const mouse = {
-  x: undefined,
-  y: undefined
-}
 
 const group = new THREE.Group()
 group.add(sphere)
@@ -254,7 +288,7 @@ let mesh2 = new THREE.Mesh(
 
 
 
-function getCurve(p1, p2) {
+function getCurve(p1, p2 , country) {
 
 
   let v1 = new THREE.Vector3(p1.x, p1.y, p1.z);
@@ -274,6 +308,7 @@ function getCurve(p1, p2) {
   const mesh = new THREE.Mesh(geometry, material);
 
   groupCities.add(mesh);
+  mesh.name = country;
   //scene.add(mesh);
 
 
@@ -349,6 +384,8 @@ let createPop = function (year) {
       new THREE.SphereBufferGeometry(0.05, 20, 20),
       new THREE.MeshBasicMaterial({ color: 0x0033ff })
     )
+      //console.log(allCountries[i]);
+
 
     let position = convertLatLngToCordinate3(allCountries[i].latitude, allCountries[i].longitude, 5.01)
 
@@ -367,8 +404,12 @@ let createPop = function (year) {
     newMesh2.position.set(position2.x, position2.y, position2.z)
     groupCities.add(newMesh2);
 
+    //newMesh2.callback = function() { console.log( this.name ); }
 
-    getCurve(position, position2);
+    newMesh.name = allCountries[i].country;
+    newMesh2.name = allCountries[i].country;
+
+    getCurve(position, position2 , allCountries[i].country);
   }
   scene.add(groupCities);
 }

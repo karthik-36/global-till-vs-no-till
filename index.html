@@ -18,31 +18,40 @@
     <div  class="slidecontainer">
       <div id = "centerHolder" style="display: inline-block; width: 33%; ">
       </div>
-      <div style="display: inline-block; width: 11%; ">
-        <fieldset style="text-align: left; border: 2px solid white">
+      <div style="display: inline-block; width: 10%; ">
+        <fieldset style="text-align: center; border: 2px solid white">
           <legend style="color: #ffffff;">Select a Mode</legend>
 
           <div>
-            <input
-              type="radio"
-              id="population"
-              name="population"
+            <button
+
+            class="button button1"
+  
+              id="populationRadio"
+           
           
-              value="population"
-              
-            />
-            <label for="population">Population</label>
+              value="populationRadio"
+        
+            >
+            Population
+            </button>
+            
           </div>
 
           <div>
-            <input
-              type="radio"
-              id="temprature"
-              name="drone"
+            <button
+
+            class="button button2"
              
-              value="temprature"
-            />
-            <label for="temprature">Temprature</label>
+              id="tempratureRadio"
+            
+             
+              value="tempratureRadio"
+        >
+            
+            Temprature
+          </button>
+            
           </div>
         </fieldset>
       </div>
@@ -171,9 +180,9 @@
 
 
     <div name = "countryContainer" id = "countryContainer">
-    <select name="country" class="form-control" id="country">
+    <select style = "text-align: left;" name="country" class="form-control" id="country">
       <option value="0" label="Select a country ... " selected="selected">Select a country ... </option>
-      <optgroup id="country-optgroup-Africa" label="Africa">
+      <optgroup  id="country-optgroup-Africa" label="Africa">
           <option value="DZ" label="Algeria">Algeria</option>
           <option value="AO" label="Angola">Angola</option>
           <option value="BJ" label="Benin">Benin</option>
@@ -445,11 +454,11 @@
       function checkClick(mode) {
   
         if (mode == 'population') {
-          let radio = document.getElementById('temprature')
+          let radio = document.getElementById('tempratureRadio')
           radio.checked = false;
           mainMode = 'population';
         }else{
-          let radio = document.getElementById('population')
+          let radio = document.getElementById('populationRadio')
        
           radio.checked = false;
           mainMode = 'temprature';
