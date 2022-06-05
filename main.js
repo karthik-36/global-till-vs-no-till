@@ -22,27 +22,76 @@ document.getElementById('popLegend').style.display = 'none'
 const centerHolder = document.getElementById('centerHolder');
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2();
+var selectedArea = null;
+var countryDisplay = null;
+var populationDisplay = null;
+var cityDisplay= null;
+var tempratureDisplay = null;
+
+
 
 window.addEventListener('click', onDocumentMouseDown, false);
 
-function onDocumentMouseDown( event ) {
+function numberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function onDocumentMouseDown(event) {
 
   event.preventDefault();
 
-  mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
-  mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+  mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+  mouse.y = - (event.clientY / renderer.domElement.clientHeight) * 2 + 1;
 
-  raycaster.setFromCamera( mouse, camera );
+  raycaster.setFromCamera(mouse, camera);
 
-  var intersects = raycaster.intersectObjects(scene.children); 
-  
-  if ( intersects.length > 0 ) {
 
-    for(let i = 0 ; i < intersects.length ; i++){
-      console.log(intersects[i].object);
+  console.log(mainMode);
+
+  var intersects = raycaster.intersectObjects(scene.children);
+
+
+  if (mainMode == 'population') {
+    if (intersects.length > 0) {
+      console.log(intersects);
+      let name = document.getElementById("countryDisplay");
+      let population = document.getElementById("populationDisplay");
+      for (let i = 0; i < intersects.length; i++) {
+        if (intersects[i].object.name != '') {
+          countryDisplay = intersects[i].object.name;
+          populationDisplay = intersects[i].object.population;
+          break;
+        }
+      }
+
+      if (countryDisplay != null) {
+        name.innerHTML = countryDisplay;
+        population.innerHTML = numberWithCommas(parseInt(populationDisplay));
+      }
+
+
     }
-    
-     // intersects[0].object.callback();
+  } else if (mainMode == 'temprature') {
+    if (intersects.length > 0) {
+      console.log(intersects);
+      let city = document.getElementById("countryDisplay");
+      let temprature = document.getElementById("populationDisplay");
+      for (let i = 0; i < intersects.length; i++) {
+        if (intersects[i].object.City != '') {
+          cityDisplay = intersects[i].object.city;
+          tempratureDisplay = intersects[i].object.temprature;
+          break;
+        }
+      }
+
+      if (cityDisplay != null) {
+        city.innerHTML = cityDisplay;
+        temprature.innerHTML = tempratureDisplay + " °C";
+      }
+
+
+    }
+
 
   }
 
@@ -52,8 +101,8 @@ var mainMode = 'population';
 function checkClickPop(mode) {
 
   centerHolder.remove();
-  console.log("population clicked");
 
+  document.getElementById('info').style.display = 'block'
   document.getElementById('popSlider').style.display = 'none'
   document.getElementById('tempSlider').style.display = ''
 
@@ -61,15 +110,19 @@ function checkClickPop(mode) {
   document.getElementById('tempLegend').style.display = 'none'
 
 
+  document.getElementById('countryCity').innerHTML = "Country";
+  document.getElementById('populationTemp').innerHTML = "Population";
+
+  document.getElementById('countryDisplay').innerHTML = "-----";
+  document.getElementById('populationDisplay').innerHTML = "-----";
 
 
-  console.log(document.getElementById("populationRadio").checked);
 
   let radio = document.getElementById('tempratureRadio')
   radio.checked = false;
-  radio.setAttribute("style" , "background : #FFFFF;");
+  radio.setAttribute("style", "background : #FFFFF;");
   radio = document.getElementById('populationRadio')
-  radio.setAttribute("style" , "background : #4CAF50;   outline : 2px dashed rgb(96, 255, 117);");
+  radio.setAttribute("style", "background : #4CAF50;   outline : 2px dashed rgb(96, 255, 117);");
   radio.checked = true;
 
 
@@ -80,15 +133,17 @@ function checkClickPop(mode) {
 
   createPop(2021);
   scene.remove(groupCities2);
-  console.log('Executing action ' + mainMode)
+
 }
 
 
 function checkClickTemp(mode) {
 
   centerHolder.remove();
-  console.log("temp clicked");
 
+  countryDisplay = null;
+  populationDisplay = null;
+  document.getElementById('info').style.display = 'block'
   document.getElementById('popSlider').style.display = ''
   document.getElementById('tempSlider').style.display = 'none'
 
@@ -96,10 +151,26 @@ function checkClickTemp(mode) {
   document.getElementById('popLegend').style.display = 'none'
   document.getElementById('tempLegend').style.display = ''
 
+
+
+  document.getElementById('countryCity').innerHTML = "City";
+  document.getElementById('populationTemp').innerHTML = "Temprature";
+
+
+
+  document.getElementById('countryDisplay').innerHTML = "-----";
+  document.getElementById('populationDisplay').innerHTML = "-----";
+
+  // <h5 id = "countryCity"> country </h5>
+  // <h3 id = "countryDisplay"> ----- </h3>
+  // <h5 id = "populationTemp"> population </h5>
+  // <h3 id = "populationDisplay"> ----- </h3>
+
+
   let radio = document.getElementById('populationRadio')
-  radio.setAttribute("style" , "background : #FFFFF;");
+  radio.setAttribute("style", "background : #FFFFF;");
   radio = document.getElementById('tempratureRadio')
-  radio.setAttribute("style" , "background : #4CAF50;   outline : 2px dashed rgb(96, 255, 117);");
+  radio.setAttribute("style", "background : #4CAF50;   outline : 2px dashed rgb(96, 255, 117);");
   radio.checked = true;
 
   mainMode = 'temprature';
@@ -107,7 +178,7 @@ function checkClickTemp(mode) {
 
   createTemp(12);
   scene.remove(groupCities);
-  console.log('Executing action ' + mainMode)
+
 
 }
 
@@ -124,7 +195,7 @@ for (let i = allTemprature.length - 1; i != -1; i--) {
   }
 }
 
-console.log(tempMap);
+
 
 
 
@@ -288,7 +359,7 @@ let mesh2 = new THREE.Mesh(
 
 
 
-function getCurve(p1, p2 , country) {
+function getCurve(p1, p2, country, population) {
 
 
   let v1 = new THREE.Vector3(p1.x, p1.y, p1.z);
@@ -298,7 +369,7 @@ function getCurve(p1, p2 , country) {
   for (let i = 0; i < 20; i++) {
     let p = new THREE.Vector3().lerpVectors(v1, v2, i / 20);
     points.push(p);
-    //console.log(p);
+
   }
 
   let path = new THREE.CatmullRomCurve3(points);
@@ -309,6 +380,8 @@ function getCurve(p1, p2 , country) {
 
   groupCities.add(mesh);
   mesh.name = country;
+  mesh.population = population;
+
   //scene.add(mesh);
 
 
@@ -327,33 +400,7 @@ function convertLatLngToCordinate3(lat, lng, radius) {
   };
 }
 
-// let point1 = {
-//   lat: 34.0522,
-//   lng: -118.2437
-// }
 
-// let point2 = {
-//   lat: 50.4501,
-//   lng: 30.5234
-// }
-
-// let point3 = {
-//   lat: 20.5937,
-//   lng: -78.9629
-
-// }
-
-// let pos = convertLatLngToCordinate3(point1.lat, point1.lng, 5.1)
-// let pos1 = convertLatLngToCordinate3(point2.lat, point2.lng, 5.1)
-// let pos2 = convertLatLngToCordinate3(point3.lat, point3.lng, 5.1)
-
-// //console.log(pos);
-
-// mesh.position.set(pos.x, pos.y, pos.z)
-// mesh1.position.set(pos1.x, pos1.y, pos1.z)
-// mesh2.position.set(pos2.x, pos2.y, pos2.z)
-
-//getCurve(pos,pos1)
 
 var groupCities = new THREE.Group()
 
@@ -366,8 +413,9 @@ function convertRange(value, r1, r2) {
 
 let createPop = function (year) {
 
-  year = convertRange(year, [1950, 2021], [0.3, 1]);
-
+  year = convertRange(year, [1950, 2021], [0.27, 1]);
+  let name = document.getElementById("countryDisplay");
+  let population = document.getElementById("populationDisplay");
 
   scene.remove(groupCities);
   groupCities = new THREE.Group();
@@ -378,13 +426,13 @@ let createPop = function (year) {
       height = 0;
     }
 
-    height = convertRange(height, [0, 1500000000], [0.05, 4]);
+    height = convertRange(height, [0, 1400000000], [0.15, 3.8]);
 
     let newMesh = new THREE.Mesh(
       new THREE.SphereBufferGeometry(0.05, 20, 20),
       new THREE.MeshBasicMaterial({ color: 0x0033ff })
     )
-      //console.log(allCountries[i]);
+
 
 
     let position = convertLatLngToCordinate3(allCountries[i].latitude, allCountries[i].longitude, 5.01)
@@ -406,10 +454,24 @@ let createPop = function (year) {
 
     //newMesh2.callback = function() { console.log( this.name ); }
 
+
+    let finalPop = allCountries[i].population * year;
     newMesh.name = allCountries[i].country;
     newMesh2.name = allCountries[i].country;
+    newMesh.population = finalPop;
+    newMesh2.population = finalPop;
 
-    getCurve(position, position2 , allCountries[i].country);
+    // var  countryDisplay = null;
+    // var  populationDisplay = null;
+
+
+    if (countryDisplay == allCountries[i].country) {
+      name.innerHTML = countryDisplay;
+      population.innerHTML = numberWithCommas(parseInt(finalPop));
+    }
+
+
+    getCurve(position, position2, allCountries[i].country, finalPop);
   }
   scene.add(groupCities);
 }
@@ -432,11 +494,15 @@ let createTemp = function (year) {
   scene.remove(groupCities2);
   groupCities2 = new THREE.Group();
 
+  let city = document.getElementById("countryDisplay");
+  let temprature = document.getElementById("populationDisplay");
+  city.innerHTML = "-----";
+  temprature.innerHTML = "-----";
+
+
   for (const [key, value] of tempMap.entries()) {
     // console.log(key, value);
     if (year == key.split("_")[1]) {
-
-
 
       let realTemp = value.AverageTemperature;
 
@@ -464,6 +530,15 @@ let createTemp = function (year) {
 
       groupCities2.add(newMesh);
       newMesh.lookAt(center.position);
+
+      newMesh.city = value.City;
+      newMesh.temprature = realTemp;
+
+      if(cityDisplay == value.City){
+        city.innerHTML = value.City;
+        temprature.innerHTML = realTemp + " °C";
+      }
+
     }
   }
   scene.add(groupCities2)
@@ -484,36 +559,6 @@ function animate() {
 }
 
 
-
-
-// function createListElements() {
-//   list = document.getElementsByClassName('js-list')[0];
-//   var pushObject = function (coordinates, target) {
-//     // Create the element
-//     var element = document.createElement('li');
-//     var innerContent;
-//     //var targetCountry = data.countries[target];
-//     var targetCountry = allCountries[target]; // REPLACEMENT
-//     element.innerHTML = '<span class="text">' + targetCountry.country + '</span>'; //country name
-//     element.className += targetCountry.country;
-//     //element.span.className += targetCountry.name;
-//     var object = {
-//       position: coordinates,
-//       element: element
-//     };
-
-//     // Add the element to the DOM and add the object to the array
-//     list.appendChild(element);
-//     elements[target] = object;
-//   };
-
-//   // Loop through each country line
-//   var i = 0;
-//   for (var x = 0; x < allCountries.length; x++) { //var country in data.countries
-//     //	var coordinates = groups.globeDots.geometry.vertices[x];
-//     //	pushObject(coordinates, x);
-//   }
-// }
 
 
 
@@ -540,14 +585,14 @@ slider2.oninput = function () {
 }
 
 
-let cameraAnimate = function (lat , lng , camera) {
-  var targetPosition = convertLatLngToCordinate3(lat , lng, 200);
+let cameraAnimate = function (lat, lng, camera) {
+  var targetPosition = convertLatLngToCordinate3(lat, lng, 200);
   // +20 so the point is not at the center, otherwise the curve will look flat
   targetPosition.z += 20;
 
   // get the current camera position
 
-  console.log(camera.position);
+
   const { x, y, z } = camera.position
   const start = new THREE.Vector3(x, y, z)
 
@@ -568,10 +613,10 @@ let cameraAnimate = function (lat , lng , camera) {
     .normalize()
     .multiplyScalar(camDistance)
   // animate from start to end
-  
+
   TweenMax.to(camera.position, 1, {
     x: a, y: b, z: c, onUpdate: () => {
-      console.log(center);
+
       camera.lookAt(center.position);
     }
   })
@@ -579,16 +624,16 @@ let cameraAnimate = function (lat , lng , camera) {
 
 //cameraAnimate(20.5937, 78.9629 , camera );
 const selectElement = document.getElementById('country');
-console.log(selectElement);
+
 selectElement.addEventListener('change', (event) => {
 
   let val = event.target.value;
-  for(let i = 0 ; i < allCountries.length ; i++){
-  //  console.log(allCountries[i].alpha2);
-    if(allCountries[i].alpha2 == val){
+  for (let i = 0; i < allCountries.length; i++) {
+    //  console.log(allCountries[i].alpha2);
+    if (allCountries[i].alpha2 == val) {
       //alert("found" + allCountries[i]);
-   //   console.log(allCountries[i]);
-      cameraAnimate(allCountries[i].latitude, allCountries[i].longitude , camera );
+      //   console.log(allCountries[i]);
+      cameraAnimate(allCountries[i].latitude, allCountries[i].longitude, camera);
       break;
     }
   }
@@ -597,10 +642,25 @@ selectElement.addEventListener('change', (event) => {
 
 animate();
 
-addEventListener('mousemove', () => {
 
-  mouse.x = (event.clientX / innerWidth) * 2 - 1;
-  mouse.y = - (event.clientY / innerHeight) * 2 + 1;
+document.body.style = "cursor: grab"
+
+addEventListener('mousedown', () => {
+
+  document.body.style = "cursor: -webkit-grabbing; cursor: grabbing;cursor: -webkit-grabbing; cursor: grabbing;"
+
+
+})
+
+addEventListener('mouseup', () => {
+
+
+  document.body.style = "cursor: grab"
+
+  let closeButton = document.querySelector(".modal-content");
+
+  closeButton.remove();
+
 
 })
 

@@ -15,8 +15,18 @@
     <link rel="stylesheet" href="/style.css" />
     <img id = "tempLegend" src="legendTemp.png" alt="legend" width="160" height="115">
     <img id = "popLegend" src="legendpop.png" alt="legend" width="240" height="125">
+    
+      
+    <div style = 'display : none; background-color: #ffffffda;' class = "info" id = "info" >
+
+        <h5 id = "countryCity"> Country </h5>
+        <h3 id = "countryDisplay"> ----- </h3>
+        <h5 id = "populationTemp"> Population </h5>
+        <h3 id = "populationDisplay"> ----- </h3>
+  
+    </div>
     <div  class="slidecontainer">
-      <div id = "centerHolder" style="display: inline-block; width: 33%; ">
+      <div id = "centerHolder" style="display: inline-block; width: 31%; ">
       </div>
       <div style="display: inline-block; width: 10%; ">
         <fieldset style="text-align: center; border: 2px solid white">
@@ -55,7 +65,11 @@
           </div>
         </fieldset>
       </div>
+
       <div style="display: inline-block; width: 30%;">
+
+
+
       <div style = 'display : none'  id = "popSlider" >
         <input
           type="range"
@@ -177,6 +191,37 @@
     <ul class="globe-list js-list"></ul>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.4/TweenMax.min.js"></script>
     <script id='mylinkC' type="module" src="/main.js"></script>
+
+    <div class="modal">
+      <div class="modal-content">
+        <!-- <span style = "font-weight: bold; " class="close-button">&times;</span> -->
+        
+        <h2 >- Hold left click and move to orbit around the earth.</h2>
+        <h2 >- Scroll down and up to zoom in and zoom out.</h2>
+        <h2 >- You can select view mode(Population/Temprature) by clicking on the respective buttons.</h2>
+      </div>
+    </div>
+
+    <script>
+
+      let closeButton = document.querySelector(".modal-content");
+
+
+     // modal.classList.toggle("show-modal");
+
+      let toggleModal = function(){
+       // const element = document.getElementById("demo");
+        closeButton.remove(); 
+      }
+ 
+     
+      // trigger.addEventListener("click", toggleModal);
+       closeButton.addEventListener("click", toggleModal);
+   
+
+
+    </script>
+
 
 
     <div name = "countryContainer" id = "countryContainer">

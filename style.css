@@ -7,7 +7,9 @@
 
 }
 
-html { overflow: hidden; }
+html { overflow: hidden; 
+
+}
 
 .button {
   background-color: #4CAF50; /* Green */
@@ -79,7 +81,23 @@ html { overflow: hidden; }
   text-align: center;
   bottom: 10px;
   margin: .4rem;
+  color : black;
   font: 1rem 'Fira Sans', sans-serif;
+}
+
+.info{
+  position: absolute;
+  width: 10%;
+  height : 19%;
+  background-color: white;
+  text-align: center;
+  bottom : 15px;
+  right: 145px;
+  margin: .4rem;
+  font: 1rem 'Fira Sans', sans-serif;
+  border : 2px solid black;
+  border-radius: 8px;
+
 }
 
 img{
@@ -135,4 +153,48 @@ input {
   border-radius: 50%;
   background: #04AA6D;
   cursor: pointer;
+}
+
+/* 
+.modal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #cccccc;
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(1.1);
+  transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+} */
+.modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #eeeeee;
+  padding: 1rem 1.5rem;
+  width: 34rem;
+  height: 14rem;
+  border-radius: 0.5rem;
+  border: 4px solid #5bb0ff;
+}
+.close-button {
+  float: right;
+  width: 2rem;
+  line-height: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 30px;
+  background-color: #eeeeee;
+}
+.close-button:hover {
+  background-color: #adadad;
+}
+.show-modal {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1.0);
+  transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
 }
