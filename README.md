@@ -1,4 +1,4 @@
-# Karthik-Earth-Visualization
+# Earth's population/temprature - Visualization
 
 # Demo Video
   - https://www.youtube.com/watch?v=EZ1YYV2OIxY
