@@ -14,21 +14,36 @@ import atmosphereFragmentShader from './shaders/atmosphereFragment.glsl'
 
 document.getElementById("populationRadio").addEventListener("click", checkClickPop);
 document.getElementById("tempratureRadio").addEventListener("click", checkClickTemp);
-document.getElementById('popSlider').style.display = 'none'
-document.getElementById('tempLegend').style.display = 'none'
-document.getElementById('tempSlider').style.display = 'none'
-document.getElementById('popLegend').style.display = 'none'
+document.getElementById("cropRadio").addEventListener("click", checkClickCrop);
+
+// document.getElementById('popSlider').style.display = 'none'
+// document.getElementById('tempLegend').style.display = 'none'
+// document.getElementById('tempSlider').style.display = 'none'
+// document.getElementById('popLegend').style.display = 'none'
 
 const centerHolder = document.getElementById('centerHolder');
+centerHolder.remove();
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2();
 var selectedArea = null;
 var countryDisplay = null;
 var populationDisplay = null;
-var cityDisplay= null;
+var cityDisplay = null;
 var tempratureDisplay = null;
-
-
+var groupCrops;
+let cropColors = [
+  '#8b4513',
+  '#006400',
+  '#4682b4',
+  '#4b0082',
+  '#ff0000',
+  '#ffd700',
+  '#00ff7f',
+  '#00ffff',
+  '#0000ff',
+  '#ff1493',
+  '#ffe4c4',
+]
 
 window.addEventListener('click', onDocumentMouseDown, false);
 
@@ -38,7 +53,7 @@ function numberWithCommas(x) {
 
 function onDocumentMouseDown(event) {
 
-  event.preventDefault();
+  //event.preventDefault();
 
   mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
   mouse.y = - (event.clientY / renderer.domElement.clientHeight) * 2 + 1;
@@ -94,6 +109,29 @@ function onDocumentMouseDown(event) {
 
 
   }
+  else if (mainMode == 'crop') {
+    if (intersects.length > 0) {
+      console.log(intersects);
+      // let city = document.getElementById("countryDisplay");
+      // let temprature = document.getElementById("populationDisplay");
+      // for (let i = 0; i < intersects.length; i++) {
+      //   if (intersects[i].object.City != '') {
+      //     cityDisplay = intersects[i].object.city;
+      //     tempratureDisplay = intersects[i].object.temprature;
+      //     break;
+      //   }
+      // }
+
+      // if (cityDisplay != null) {
+      //   city.innerHTML = cityDisplay;
+      //   temprature.innerHTML = tempratureDisplay + " °C";
+      // }
+
+
+    }
+
+
+  }
 
 }
 
@@ -103,11 +141,11 @@ function checkClickPop(mode) {
   centerHolder.remove();
 
   document.getElementById('info').style.display = 'block'
-  document.getElementById('popSlider').style.display = 'none'
-  document.getElementById('tempSlider').style.display = ''
+  // document.getElementById('popSlider').style.display = 'none'
+  // document.getElementById('tempSlider').style.display = ''
 
-  document.getElementById('popLegend').style.display = ''
-  document.getElementById('tempLegend').style.display = 'none'
+  // document.getElementById('popLegend').style.display = ''
+  // document.getElementById('tempLegend').style.display = 'none'
 
 
   document.getElementById('countryCity').innerHTML = "Country";
@@ -117,9 +155,19 @@ function checkClickPop(mode) {
   document.getElementById('populationDisplay').innerHTML = "-----";
 
 
+  //
+
+  // document.getElementById('popLegend').style.display = 'none'
+  // document.getElementById('tempLegend').style.display = 'none'
+
+  //
+
+
 
   let radio = document.getElementById('tempratureRadio')
   radio.checked = false;
+  radio.setAttribute("style", "background : #FFFFF;");
+  radio = document.getElementById('cropRadio')
   radio.setAttribute("style", "background : #FFFFF;");
   radio = document.getElementById('populationRadio')
   radio.setAttribute("style", "background : #4CAF50;   outline : 2px dashed rgb(96, 255, 117);");
@@ -144,12 +192,12 @@ function checkClickTemp(mode) {
   countryDisplay = null;
   populationDisplay = null;
   document.getElementById('info').style.display = 'block'
-  document.getElementById('popSlider').style.display = ''
-  document.getElementById('tempSlider').style.display = 'none'
+  // document.getElementById('popSlider').style.display = ''
+  // document.getElementById('tempSlider').style.display = 'none'
 
 
-  document.getElementById('popLegend').style.display = 'none'
-  document.getElementById('tempLegend').style.display = ''
+  // document.getElementById('popLegend').style.display = 'none'
+  // document.getElementById('tempLegend').style.display = ''
 
 
 
@@ -161,6 +209,14 @@ function checkClickTemp(mode) {
   document.getElementById('countryDisplay').innerHTML = "-----";
   document.getElementById('populationDisplay').innerHTML = "-----";
 
+
+  //
+
+  // document.getElementById('popLegend').style.display = 'none'
+  // document.getElementById('tempLegend').style.display = 'none'
+
+  //
+
   // <h5 id = "countryCity"> country </h5>
   // <h3 id = "countryDisplay"> ----- </h3>
   // <h5 id = "populationTemp"> population </h5>
@@ -168,6 +224,8 @@ function checkClickTemp(mode) {
 
 
   let radio = document.getElementById('populationRadio')
+  radio.setAttribute("style", "background : #FFFFF;");
+  radio = document.getElementById('cropRadio')
   radio.setAttribute("style", "background : #FFFFF;");
   radio = document.getElementById('tempratureRadio')
   radio.setAttribute("style", "background : #4CAF50;   outline : 2px dashed rgb(96, 255, 117);");
@@ -184,9 +242,68 @@ function checkClickTemp(mode) {
 
 
 
+function checkClickCrop() {
+
+
+  console.log("here crop");
+
+  centerHolder.remove();
+
+  countryDisplay = null;
+  populationDisplay = null;
+ // document.getElementById('info').style.display = 'block'
+  // document.getElementById('popSlider').style.display = ''
+  // document.getElementById('tempSlider').style.display = 'none'
+
+
+  // document.getElementById('popLegend').style.display = 'none'
+  // document.getElementById('tempLegend').style.display = ''
+
+
+
+  document.getElementById('countryCity').innerHTML = "Crop Type";
+  document.getElementById('populationTemp').innerHTML = "Yield";
+
+
+
+  document.getElementById('countryDisplay').innerHTML = "-----";
+  document.getElementById('populationDisplay').innerHTML = "-----";
+
+
+
+  //
+
+  // document.getElementById('popLegend').style.display = 'none'
+  // document.getElementById('tempLegend').style.display = 'none'
+
+  //
+
+  // <h5 id = "countryCity"> country </h5>
+  // <h3 id = "countryDisplay"> ----- </h3>
+  // <h5 id = "populationTemp"> population </h5>
+  // <h3 id = "populationDisplay"> ----- </h3>
+
+
+  let radio = document.getElementById('populationRadio')
+  radio.setAttribute("style", "background : #FFFFF;");
+  radio = document.getElementById('tempratureRadio')
+  radio.setAttribute("style", "background : #FFFFF;");
+  radio = document.getElementById('cropRadio')
+  radio.setAttribute("style", "background : #4CAF50;   outline : 2px dashed rgb(96, 255, 117);");
+  radio.checked = true;
+
+  mainMode = 'crops';
+
+
+  createCrop(selectedCrops);
+  scene.remove(groupCities);
+
+
+}
+
+
+
 let tempMap = new Map();
-
-
 
 for (let i = allTemprature.length - 1; i != -1; i--) {
   let postFix = parseInt(allTemprature[i].dt.split("-")[1]);
@@ -195,25 +312,28 @@ for (let i = allTemprature.length - 1; i != -1; i--) {
   }
 }
 
+let cropMap = new Map();
 
-
-
+for (let i = 0; i < allCrops.length; i++) {
+  if (cropMap.has(allCrops[i].Crop)) {
+    cropMap.set(allCrops[i].Crop, cropMap.get(allCrops[i].Crop).concat(allCrops[i]));
+  } else {
+    cropMap.set(allCrops[i].Crop, [allCrops[i]]);
+  }
+}
 
 allCountries = allCountries.ref_country_codes;
 
 let map = new Map();
 
 for (let i = 0; i < population.length; i++) {
-
   map.set(population[i].country, population[i].population);
-
 }
 
 
 
 
 for (let i = 0; i < allCountries.length; i++) {
-
   if (map.has(allCountries[i].country)) {
     allCountries[i].population = map.get(allCountries[i].country)
   }
@@ -383,8 +503,6 @@ function getCurve(p1, p2, country, population) {
   mesh.population = population;
 
   //scene.add(mesh);
-
-
 }
 
 
@@ -437,11 +555,8 @@ let createPop = function (year) {
 
     let position = convertLatLngToCordinate3(allCountries[i].latitude, allCountries[i].longitude, 5.01)
 
-
     newMesh.position.set(position.x, position.y, position.z)
     groupCities.add(newMesh);
-
-
 
     let newMesh2 = new THREE.Mesh(
       new THREE.SphereBufferGeometry(0.05, 20, 20),
@@ -494,10 +609,10 @@ let createTemp = function (year) {
   scene.remove(groupCities2);
   groupCities2 = new THREE.Group();
 
-  let city = document.getElementById("countryDisplay");
-  let temprature = document.getElementById("populationDisplay");
-  city.innerHTML = "-----";
-  temprature.innerHTML = "-----";
+  // let city = document.getElementById("countryDisplay");
+  // let temprature = document.getElementById("populationDisplay");
+  // city.innerHTML = "-----";
+  // temprature.innerHTML = "-----";
 
 
   for (const [key, value] of tempMap.entries()) {
@@ -534,7 +649,7 @@ let createTemp = function (year) {
       newMesh.city = value.City;
       newMesh.temprature = realTemp;
 
-      if(cityDisplay == value.City){
+      if (cityDisplay == value.City) {
         city.innerHTML = value.City;
         temprature.innerHTML = realTemp + " °C";
       }
@@ -544,8 +659,41 @@ let createTemp = function (year) {
   scene.add(groupCities2)
 }
 
-//createPop(2021);
-//createTemp(2013);
+
+
+
+var createCrop = function (cropFilter, yearLeft, yearRight) {
+
+  scene.remove(groupCities);
+  scene.remove(groupCities2);
+  scene.remove(groupCrops);
+  groupCrops = new THREE.Group();
+
+  let colorNum = 0;
+  for (let [key, value] of cropMap) {
+    if (selectedCrops.has(key)) {
+      for(let i = 0 ; i < value.length ; i++){
+        
+        let newMesh = new THREE.Mesh(
+          new THREE.CircleGeometry( 0.08, 32 ),
+          new THREE.MeshBasicMaterial({ color: cropColors[colorNum], side: THREE.DoubleSide, transparent: true, opacity: 0.78 })
+        )
+
+        let position = convertLatLngToCordinate3(value[i].Latitude, value[i].Longitude, 5.0 + (0.008 * colorNum))
+        newMesh.position.set(position.x, position.y, position.z);
+  
+        groupCrops.add(newMesh);
+        newMesh.lookAt(center.position);
+
+      }
+    }
+    colorNum++;
+  }
+
+  scene.add(groupCrops);
+}
+
+
 scene.add(group)
 
 function animate() {
@@ -562,28 +710,31 @@ function animate() {
 
 
 
-var slider = document.getElementById('myRange')
-var output = document.getElementById('demo')
-output.innerHTML = "<b> 2012-" + slider.value + "-01" + " </b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    Max : 2012-12-01";
+// var slider = document.getElementById('myRange')
+// var output = document.getElementById('demo')
+// output.innerHTML = "<b> 2012-" + slider.value + "-01" + " </b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    Max : 2017";
 
-slider.oninput = function () {
-  output.innerHTML = "<b> 2012-" + this.value + "-01" + " </b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    Max : 2012-12-01";
-  createTemp(this.value);
+// slider.oninput = function () {
+//   output.innerHTML = this.value + " </b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    Max : 2012-12-01";
+//   createTemp(this.value);
 
-}
+// }
 
 
 
-var slider2 = document.getElementById('myRange2')
-var output2 = document.getElementById('demo2')
-output2.innerHTML = "<b>" + slider2.value + " </b>   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      Max : 2021"
+// var slider2 = document.getElementById('myRange2')
+// var output2 = document.getElementById('demo2')
+// output2.innerHTML = "<b>" + slider2.value + " </b>   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      Max : 2021"
 
-slider2.oninput = function () {
-  output2.innerHTML = "<b>" + this.value + " </b>   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;     Max : 2021"
-  createPop(this.value);
+// slider2.oninput = function () {
+//   output2.innerHTML = "<b>" + this.value + " </b>   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;     Max : 2021"
+//   createPop(this.value);
 
-}
+// }
 
+// function ValidateCropSelection(){
+//   console.log("hello");
+// }
 
 let cameraAnimate = function (lat, lng, camera) {
   var targetPosition = convertLatLngToCordinate3(lat, lng, 200);
@@ -626,17 +777,21 @@ let cameraAnimate = function (lat, lng, camera) {
 const selectElement = document.getElementById('country');
 
 selectElement.addEventListener('change', (event) => {
-
   let val = event.target.value;
   for (let i = 0; i < allCountries.length; i++) {
-    //  console.log(allCountries[i].alpha2);
     if (allCountries[i].alpha2 == val) {
-      //alert("found" + allCountries[i]);
-      //   console.log(allCountries[i]);
       cameraAnimate(allCountries[i].latitude, allCountries[i].longitude, camera);
       break;
     }
   }
+});
+
+
+const selectAllCrop = document.getElementById('allCropChecks');
+
+selectAllCrop.addEventListener('change', (event) => {
+
+  createCrop();
 
 });
 
@@ -659,10 +814,187 @@ addEventListener('mouseup', () => {
 
   let closeButton = document.querySelector(".modal-content");
 
-  closeButton.remove();
+  try {
+    closeButton.remove();
+  } catch (e) {
+
+  }
 
 
 })
+
+
+
+/////////////
+
+// set the dimensions and margins of the graph
+var margin = {top: 10, right: 100, bottom: 30, left: 30},
+    width = 460 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+
+// append the svg object to the body of the page
+var svg = d3.select("#myDataviz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+//Read the data
+d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_connectedscatter.csv", function(data) {
+
+    // List of groups (here I have one group per column)
+    var allGroup = ["valueA", "valueB", "valueC"]
+
+    // Reformat the data: we need an array of arrays of {x, y} tuples
+    var dataReady = allGroup.map( function(grpName) { // .map allows to do something for each element of the list
+      return {
+        name: grpName,
+        values: data.map(function(d) {
+          return {time: d.time, value: +d[grpName]};
+        })
+      };
+    });
+    // I strongly advise to have a look to dataReady with
+    // console.log(dataReady)
+
+    // A color scale: one color for each group
+    var myColor = d3.scaleOrdinal()
+      .domain(allGroup)
+      .range(d3.schemeSet2);
+
+    // Add X axis --> it is a date format
+    var x = d3.scaleLinear()
+      .domain([0,10])
+      .range([ 0, width ]);
+    svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+    // Add Y axis
+    var y = d3.scaleLinear()
+      .domain( [0,20])
+      .range([ height, 0 ]);
+    svg.append("g")
+      .call(d3.axisLeft(y));
+
+    // Add the lines
+    var line = d3.line()
+      .x(function(d) { return x(+d.time) })
+      .y(function(d) { return y(+d.value) })
+    svg.selectAll("myLines")
+      .data(dataReady)
+      .enter()
+      .append("path")
+        .attr("d", function(d){ return line(d.values) } )
+        .attr("stroke", function(d){ return myColor(d.name) })
+        .style("stroke-width", 4)
+        .style("fill", "none")
+
+    // Add the points
+    svg
+      // First we need to enter in a group
+      .selectAll("myDots")
+      .data(dataReady)
+      .enter()
+        .append('g')
+        .style("fill", function(d){ return myColor(d.name) })
+      // Second we need to enter in the 'values' part of this group
+      .selectAll("myPoints")
+      .data(function(d){ return d.values })
+      .enter()
+      .append("circle")
+        .attr("cx", function(d) { return x(d.time) } )
+        .attr("cy", function(d) { return y(d.value) } )
+        .attr("r", 5)
+        .attr("stroke", "white")
+
+    // Add a legend at the end of each line
+    svg
+      .selectAll("myLabels")
+      .data(dataReady)
+      .enter()
+        .append('g')
+        .append("text")
+          .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; }) // keep only the last value of each time series
+          .attr("transform", function(d) { return "translate(" + x(d.value.time) + "," + y(d.value.value) + ")"; }) // Put the text at the position of the last point
+          .attr("x", 12) // shift the text a bit more right
+          .text(function(d) { return d.name; })
+          .style("fill", function(d){ return myColor(d.name) })
+          .style("font-size", 15)
+
+})
+
+/////////////
+
+
+var inputLeft = document.getElementById("input-left");
+var inputRight = document.getElementById("input-right");
+
+var thumbLeft = document.querySelector(".slider > .thumb.left");
+var thumbRight = document.querySelector(".slider > .thumb.right");
+var range = document.querySelector(".slider > .range");
+
+function setLeftValue() {
+	var _this = inputLeft,
+		min = parseInt(_this.min),
+		max = parseInt(_this.max);
+
+	_this.value = Math.min(parseInt(_this.value), parseInt(inputRight.value) - 1);
+
+	var percent = ((_this.value - min) / (max - min)) * 100;
+
+	thumbLeft.style.left = percent + "%";
+	range.style.left = percent + "%";
+}
+setLeftValue();
+
+function setRightValue() {
+	var _this = inputRight,
+		min = parseInt(_this.min),
+		max = parseInt(_this.max);
+
+	_this.value = Math.max(parseInt(_this.value), parseInt(inputLeft.value) + 1);
+
+	var percent = ((_this.value - min) / (max - min)) * 100;
+
+	thumbRight.style.right = (100 - percent) + "%";
+	range.style.right = (100 - percent) + "%";
+}
+setRightValue();
+
+inputLeft.addEventListener("input", setLeftValue);
+inputRight.addEventListener("input", setRightValue);
+
+inputLeft.addEventListener("mouseover", function() {
+	thumbLeft.classList.add("hover");
+});
+inputLeft.addEventListener("mouseout", function() {
+	thumbLeft.classList.remove("hover");
+});
+inputLeft.addEventListener("mousedown", function() {
+	thumbLeft.classList.add("active");
+});
+inputLeft.addEventListener("mouseup", function() {
+	thumbLeft.classList.remove("active");
+});
+
+inputRight.addEventListener("mouseover", function() {
+	thumbRight.classList.add("hover");
+});
+inputRight.addEventListener("mouseout", function() {
+	thumbRight.classList.remove("hover");
+});
+inputRight.addEventListener("mousedown", function() {
+	thumbRight.classList.add("active");
+});
+inputRight.addEventListener("mouseup", function() {
+	thumbRight.classList.remove("active");
+});
+
+
+
 
 
 
