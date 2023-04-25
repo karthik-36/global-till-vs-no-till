@@ -137,15 +137,9 @@
             onclick="ValidateCropSelection(event,value)"
           />
           sunflower
-          <br />
-          <input
-            type="checkbox"
-            name="favorite_crop"
-            value="crops"
-            onclick="ValidateCropSelection(event,value)"
-          />
-          crops
-          <br />
+         
+     
+        
         </div>
       </form>
 
@@ -159,30 +153,60 @@
 
 
   <div
-    style="display: none; background-color: #ffffffda;"
+    style=" background-color: #ffffffda;"
     class="info"
     id="info"
   >
-    <h5 id="countryCity">Country</h5>
-    <h3 id="countryDisplay">-----</h3>
-    <h5 id="populationTemp">Population</h5>
-    <h3 id="populationDisplay">-----</h3>
-    <h5 id="cropDisp">All Crops</h5>
-    <h3 id="cropDisp2">-----</h3>
+  <div class='parent'>
+    <div class='child float-left-child'>
+      <h5 id="cc1">Crop Type</h5>
+      <h5 id="ccd1">-----</h5>
+      <h5 id="cc2">Location</h5>
+      <h5 id="ccd2">-----</h5>
+      <h5 id="cc3">Year Range</h5>
+      <h5 id="ccd3">-----</h5>
+      <h5 id="cc4">Replications in Experiment</h5>
+      <h5 id="ccd4">-----</h5>
+      <h5 id="cc5">pH (surface layer)</h5>
+      <h5 id="ccd5">-----</h5>
+
+    </div>
+    <div style = "padding-left  : 30px" class='child float-left-child'>
+
+      <h5 id="cc6">Sowing month</h5>
+      <h5 id="ccd6">-----</h5>
+      <h5 id="cc7">Harvesting month</h5>
+      <h5 id="ccd7">-----</h5>
+      <h5 id="cc8">Average Yield of CT</h5>
+      <h5 id="ccd8">-----</h5>
+      <h5 id="cc9">Average Yield of NT</h5>
+      <h5 id="ccd9">-----</h5>
+      <h5 id="cc10">OverAll Change</h5>
+      <h5 id="ccd10">-----</h5>
+
+    </div>
+  </div>
+
+ 
     
   </div>
-  <div class="middle">
-    <div class="multi-range-slider">
-      <input type="range" id="input-left" min="0" max="100" value="25">
-      <input type="range" id="input-right" min="0" max="100" value="75">
+  <div class="middle" style = "margin : 20px;">
+    <div id = "min year" style = 'color : white;   left : "0px"'>min : 2000</div>
+    <div id =  "max year" style = 'color : white;  right : "0px";'>max : 2010</div>
+    <br/>
+    <div class="multi-range-slider" id = "multi-range-slider">
+      <input type="range" id="input-left" min="1984" max="2020" value="1996">
+      <input type="range" id="input-right" min="1984" max="2020" value="2010">
   
       <div class="slider">
         <div class="track"></div>
         <div class="range"></div>
-        <div class="thumb left"></div>
-        <div class="thumb right"></div>
+        <div class="thumb left"><br/><span id = "sleft" style = "position:absolute; margin-bottom: 20px; color : white;">&nbsp;1984</span></div>
+        <div class="thumb right"><br/><span id = "sright"  style = "position:absolute; margin-bottom: 20px; color : white;">&nbsp;2020</span></div>
       </div>
     </div>
+    <p></p>
+
   </div>
   <div class="slidecontainer">
 
@@ -272,14 +296,14 @@
   </div> -->
 
   <div id="myDataviz"></div>
-
+  
   <script type="text/javascript">
     var allCountries = null
     var population = null
     var allCrops = null
     var allTemprature = null
     var selectedCrops = new Set()
-    var cropMap = new Map();
+    var cropIdMap = new Map();
     $.ajaxSettings.async = false
     $.getJSON('countries.json', function (json) {
       allCountries = json
@@ -313,19 +337,31 @@
 
     })
       .done(function () {
-        console.log("cropMap " , cropMap);
+
         for(let i = 0 ; i < allCrops.length ; i++){
-          console.log(allCrops[i]);
+  
           let id = allCrops[i].Location + allCrops[i].Crop + allCrops[i].Latitude + allCrops[i].Longitude;
-          if(cropMap.has(id)){
-            let arr = cropMap.get(id)
-            arr = arr.concat(allCrops[i]);
-            cropMap.set(id ,arr);
+          if(cropIdMap.has(id)){
+
+            let arr = cropIdMap.get(id)
+            if(arr[arr.length - 1]["Harvest year"] != allCrops[i]["Harvest year"] ){
+              arr = arr.concat(allCrops[i]);
+            cropIdMap.set(id ,arr);
+            }
+          
           }else{
-            cropMap.set(id , [allCrops[i]]);
+            cropIdMap.set(id , [allCrops[i]]);
           }
         }
-        console.log(cropMap);
+
+        for(let [key,value] of cropIdMap){
+            console.log(key,value);
+            let arrSorted = value.sort((a,b) => {
+              return a["Harvest year"] - b["Harvest year"];
+            })
+            cropIdMap.set(key , arrSorted);
+        }
+  
       })
       .fail(function (e) {
 
@@ -394,7 +430,7 @@
       <h2>- Hold left click and move to orbit around the earth.</h2>
       <h2>- Scroll down and up to zoom in and zoom out.</h2>
       <h2>
-        - You can select view mode(Till/No-Till/All-Crops) by clicking on the
+        - You can select view mode(No-Till +ve & -ve impacts/All-Crops) by clicking on the
         respective buttons.
       </h2>
     </div>

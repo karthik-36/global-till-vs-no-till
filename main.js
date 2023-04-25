@@ -31,6 +31,12 @@ var populationDisplay = null;
 var cityDisplay = null;
 var tempratureDisplay = null;
 var groupCrops;
+var positiveMesh;
+var negativeMesh;
+
+var globalLeft = null;
+var globalRight = null;
+var cropArr = [];
 let cropColors = [
   '#8b4513',
   '#006400',
@@ -61,47 +67,116 @@ function onDocumentMouseDown(event) {
   raycaster.setFromCamera(mouse, camera);
 
 
-  console.log(mainMode);
+  //console.log(mainMode + " mode ");
 
   var intersects = raycaster.intersectObjects(scene.children);
 
 
-  if (mainMode == 'population') {
+  // if (mainMode == 'population') {
+  //   if (intersects.length > 0) {
+  //     console.log(intersects);
+  //     let name = document.getElementById("countryDisplay");
+  //     let population = document.getElementById("populationDisplay");
+  //     for (let i = 0; i < intersects.length; i++) {
+  //       if (intersects[i].object.name != '') {
+  //         countryDisplay = intersects[i].object.name;
+  //         populationDisplay = intersects[i].object.population;
+  //         break;
+  //       }
+  //     }
+
+  //     if (countryDisplay != null) {
+  //       name.innerHTML = countryDisplay;
+  //       population.innerHTML = numberWithCommas(parseInt(populationDisplay));
+  //     }
+
+
+  //   }
+  // } else if (mainMode == 'temprature') {
+  //   if (intersects.length > 0) {
+  //     console.log(intersects);
+  //     let city = document.getElementById("countryDisplay");
+  //     let temprature = document.getElementById("populationDisplay");
+  //     for (let i = 0; i < intersects.length; i++) {
+  //       if (intersects[i].object.City != '') {
+  //         cityDisplay = intersects[i].object.city;
+  //         tempratureDisplay = intersects[i].object.temprature;
+  //         break;
+  //       }
+  //     }
+
+  //     if (cityDisplay != null) {
+  //       city.innerHTML = cityDisplay;
+  //       temprature.innerHTML = tempratureDisplay + " °C";
+  //     }
+
+
+  //   }
+
+
+  // }
+  if (mainMode == 'crops' || mainMode == 'negative' || mainMode == 'positive') {
+
     if (intersects.length > 0) {
-      console.log(intersects);
-      let name = document.getElementById("countryDisplay");
-      let population = document.getElementById("populationDisplay");
-      for (let i = 0; i < intersects.length; i++) {
-        if (intersects[i].object.name != '') {
-          countryDisplay = intersects[i].object.name;
-          populationDisplay = intersects[i].object.population;
-          break;
+
+
+      let cropProperties = cropIdMap.get(intersects[0].object.propId);
+
+      if (cropProperties) {
+        let totalCT = 0;
+        let totalNT = 0;
+        for (let x = 0; x < cropProperties.length; x++) {
+          totalCT += cropProperties[x]["Yield of CT"];
+          totalNT += cropProperties[x]["Yield of NT"];
         }
-      }
+        totalCT = (totalCT / cropProperties.length).toFixed(2);
+        totalNT = (totalNT / cropProperties.length).toFixed(2);
 
-      if (countryDisplay != null) {
-        name.innerHTML = countryDisplay;
-        population.innerHTML = numberWithCommas(parseInt(populationDisplay));
-      }
+        document.getElementById('ccd1').innerHTML = cropProperties[0]?.Crop ? cropProperties[0]?.Crop : "-----";
+        document.getElementById('ccd2').innerHTML = cropProperties[0]["Site country"] ? (cropProperties[0]["Site country"] + ", " + cropProperties[0]?.Location).substring(0, 25) : "-----";
+        document.getElementById('ccd3').innerHTML = cropProperties[0]["Harvest year"] ? (cropProperties[0]["Harvest year"] + " -> " + cropProperties[cropProperties.length - 1]["Harvest year"]) : "-----";
+        document.getElementById('ccd4').innerHTML = cropProperties[0]["Replications in experiment"] ? cropProperties[0]["Replications in experiment"] : "-----";
+        document.getElementById('ccd5').innerHTML = cropProperties[0]["pH (surface layer)"] = " " ? "data unavailable" : cropProperties[0]["pH (surface layer)"];
+        document.getElementById('ccd6').innerHTML = cropProperties[0]["Sowing month"] ? cropProperties[0]["Sowing month"] : "-----";
+        document.getElementById('ccd7').innerHTML = cropProperties[0]["Harvesting month"] ? cropProperties[0]["Harvesting month"] : "-----";
+        document.getElementById('ccd8').innerHTML = totalCT + " kg/ha";
+        document.getElementById('ccd9').innerHTML = totalNT + " kg/ha";
+        document.getElementById('ccd10').innerHTML = (((totalNT - totalCT) / totalCT) * 100).toFixed(2) + "%";
+
+        document.getElementById('min year').innerHTML = "min : " + cropProperties[0]["Harvest year"];
+        document.getElementById('max year').innerHTML = "max : " + cropProperties[cropProperties.length - 1]["Harvest year"];
+        // (cropProperties[0]["Harvest year"] + " -> " + cropProperties[cropProperties.length - 1]["Harvest year"])
+        document.getElementById('sleft').innerHTML = "&nbsp;" + cropProperties[0]["Harvest year"];
+        document.getElementById('sright').innerHTML = "&nbsp;" + cropProperties[cropProperties.length - 1]["Harvest year"];
 
 
-    }
-  } else if (mainMode == 'temprature') {
-    if (intersects.length > 0) {
-      console.log(intersects);
-      let city = document.getElementById("countryDisplay");
-      let temprature = document.getElementById("populationDisplay");
-      for (let i = 0; i < intersects.length; i++) {
-        if (intersects[i].object.City != '') {
-          cityDisplay = intersects[i].object.city;
-          tempratureDisplay = intersects[i].object.temprature;
-          break;
-        }
-      }
 
-      if (cityDisplay != null) {
-        city.innerHTML = cityDisplay;
-        temprature.innerHTML = tempratureDisplay + " °C";
+        document.getElementById('input-left').min = cropProperties[0]["Harvest year"];
+        document.getElementById('input-left').max = cropProperties[cropProperties.length - 1]["Harvest year"];
+        document.getElementById('input-left').value = cropProperties[0]["Harvest year"];
+
+        document.getElementById('input-right').min = cropProperties[0]["Harvest year"];
+        document.getElementById('input-right').max = cropProperties[cropProperties.length - 1]["Harvest year"];
+        document.getElementById('input-right').value = cropProperties[cropProperties.length - 1]["Harvest year"];
+        globalLeft = cropProperties[0]["Harvest year"];
+        globalRight = cropProperties[cropProperties.length - 1]["Harvest year"];
+
+        document.getElementsByClassName("range")[0].style["left"] = "0%";
+        document.getElementsByClassName("range")[0].style["right"] = "0%";
+
+        document.getElementsByClassName("thumb left")[0].style["left"] = "0%";
+        document.getElementsByClassName("thumb right")[0].style["right"] = "0%";
+
+        // console.log(document.getElementById('input-left').value);
+        // console.log(document.getElementById('input-right').value);
+
+
+        cropArr.push(cropProperties);
+
+        createD3(cropArr, true, null, null);
+
+      } else {
+        // cropArr = [];
       }
 
 
@@ -109,29 +184,9 @@ function onDocumentMouseDown(event) {
 
 
   }
-  else if (mainMode == 'crop') {
-    if (intersects.length > 0) {
-      console.log(intersects);
-      // let city = document.getElementById("countryDisplay");
-      // let temprature = document.getElementById("populationDisplay");
-      // for (let i = 0; i < intersects.length; i++) {
-      //   if (intersects[i].object.City != '') {
-      //     cityDisplay = intersects[i].object.city;
-      //     tempratureDisplay = intersects[i].object.temprature;
-      //     break;
-      //   }
-      // }
-
-      // if (cityDisplay != null) {
-      //   city.innerHTML = cityDisplay;
-      //   temprature.innerHTML = tempratureDisplay + " °C";
-      // }
 
 
-    }
 
-
-  }
 
 }
 
@@ -139,29 +194,6 @@ var mainMode = 'population';
 function checkClickPop(mode) {
 
   centerHolder.remove();
-
-  document.getElementById('info').style.display = 'block'
-  // document.getElementById('popSlider').style.display = 'none'
-  // document.getElementById('tempSlider').style.display = ''
-
-  // document.getElementById('popLegend').style.display = ''
-  // document.getElementById('tempLegend').style.display = 'none'
-
-
-  document.getElementById('countryCity').innerHTML = "Country";
-  document.getElementById('populationTemp').innerHTML = "Population";
-
-  document.getElementById('countryDisplay').innerHTML = "-----";
-  document.getElementById('populationDisplay').innerHTML = "-----";
-
-
-  //
-
-  // document.getElementById('popLegend').style.display = 'none'
-  // document.getElementById('tempLegend').style.display = 'none'
-
-  //
-
 
 
   let radio = document.getElementById('tempratureRadio')
@@ -176,11 +208,10 @@ function checkClickPop(mode) {
 
   //  let radio = document.getElementById('populationRadio')
   // radio.setAttribute("checked" , true);
-  mainMode = 'population';
+  mainMode = 'positive';
 
+  createCrop(selectedCrops);
 
-  createPop(2021);
-  scene.remove(groupCities2);
 
 }
 
@@ -201,13 +232,13 @@ function checkClickTemp(mode) {
 
 
 
-  document.getElementById('countryCity').innerHTML = "City";
-  document.getElementById('populationTemp').innerHTML = "Temprature";
+  // document.getElementById('countryCity').innerHTML = "City";
+  // document.getElementById('populationTemp').innerHTML = "Temprature";
 
 
 
-  document.getElementById('countryDisplay').innerHTML = "-----";
-  document.getElementById('populationDisplay').innerHTML = "-----";
+  // document.getElementById('countryDisplay').innerHTML = "-----";
+  // document.getElementById('populationDisplay').innerHTML = "-----";
 
 
   //
@@ -231,10 +262,10 @@ function checkClickTemp(mode) {
   radio.setAttribute("style", "background : #4CAF50;   outline : 2px dashed rgb(96, 255, 117);");
   radio.checked = true;
 
-  mainMode = 'temprature';
+  mainMode = 'negative';
 
-
-  createTemp(12);
+  createCrop(selectedCrops);
+  //createTemp(12);
   scene.remove(groupCities);
 
 
@@ -251,37 +282,6 @@ function checkClickCrop() {
 
   countryDisplay = null;
   populationDisplay = null;
- // document.getElementById('info').style.display = 'block'
-  // document.getElementById('popSlider').style.display = ''
-  // document.getElementById('tempSlider').style.display = 'none'
-
-
-  // document.getElementById('popLegend').style.display = 'none'
-  // document.getElementById('tempLegend').style.display = ''
-
-
-
-  document.getElementById('countryCity').innerHTML = "Crop Type";
-  document.getElementById('populationTemp').innerHTML = "Yield";
-
-
-
-  document.getElementById('countryDisplay').innerHTML = "-----";
-  document.getElementById('populationDisplay').innerHTML = "-----";
-
-
-
-  //
-
-  // document.getElementById('popLegend').style.display = 'none'
-  // document.getElementById('tempLegend').style.display = 'none'
-
-  //
-
-  // <h5 id = "countryCity"> country </h5>
-  // <h3 id = "countryDisplay"> ----- </h3>
-  // <h5 id = "populationTemp"> population </h5>
-  // <h3 id = "populationDisplay"> ----- </h3>
 
 
   let radio = document.getElementById('populationRadio')
@@ -297,6 +297,7 @@ function checkClickCrop() {
 
   createCrop(selectedCrops);
   scene.remove(groupCities);
+
 
 
 }
@@ -337,7 +338,6 @@ for (let i = 0; i < allCountries.length; i++) {
   if (map.has(allCountries[i].country)) {
     allCountries[i].population = map.get(allCountries[i].country)
   }
-
 }
 
 
@@ -485,6 +485,8 @@ function getCurve(p1, p2, country, population) {
   let v1 = new THREE.Vector3(p1.x, p1.y, p1.z);
   let v2 = new THREE.Vector3(p2.x, p2.y, p2.z);
 
+
+
   let points = [];
   for (let i = 0; i < 20; i++) {
     let p = new THREE.Vector3().lerpVectors(v1, v2, i / 20);
@@ -498,11 +500,39 @@ function getCurve(p1, p2, country, population) {
   const material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
   const mesh = new THREE.Mesh(geometry, material);
 
-  groupCities.add(mesh);
+  groupCrops.add(mesh);
   mesh.name = country;
   mesh.population = population;
 
   //scene.add(mesh);
+}
+
+function getCurvePercent(p1, p2, color) {
+
+
+  let v1 = new THREE.Vector3(p1.x, p1.y, p1.z);
+  let v2 = new THREE.Vector3(p2.x, p2.y, p2.z);
+  //console.log("helkloo",v1,v2);
+  let points = [];
+  for (let i = 0; i < 10; i++) {
+    let p = new THREE.Vector3().lerpVectors(v1, v2, i / 10);
+    points.push(p);
+  }
+
+  let path = new THREE.CatmullRomCurve3(points);
+
+  const geometry = new THREE.TubeGeometry(path, 4, 0.03, 4, false);
+  const material = new THREE.MeshBasicMaterial({ color: color == "red" ? "rgb(150, 50, 25)" : color });
+  const mesh = new THREE.Mesh(geometry, material);
+
+  if (color == "blue") {
+    positiveMesh.add(mesh);
+  }
+  if (color == "red") {
+    negativeMesh.add(mesh);
+  }
+
+
 }
 
 
@@ -529,67 +559,64 @@ function convertRange(value, r1, r2) {
 }
 
 
-let createPop = function (year) {
+// let createPop = function (year) {
 
-  year = convertRange(year, [1950, 2021], [0.27, 1]);
-  let name = document.getElementById("countryDisplay");
-  let population = document.getElementById("populationDisplay");
+//   year = convertRange(year, [1950, 2021], [0.27, 1]);
+//   let name = document.getElementById("countryDisplay");
+//   let population = document.getElementById("populationDisplay");
 
-  scene.remove(groupCities);
-  groupCities = new THREE.Group();
-  for (let i = 0; i < allCountries.length; i++) {
-    let height = allCountries[i].population;
+//   scene.remove(groupCities);
+//   groupCities = new THREE.Group();
+//   for (let i = 0; i < allCountries.length; i++) {
+//     let height = allCountries[i].population;
 
-    if (height == null) {
-      height = 0;
-    }
+//     if (height == null) {
+//       height = 0;
+//     }
 
-    height = convertRange(height, [0, 1400000000], [0.15, 3.8]);
+//     height = convertRange(height, [0, 1400000000], [0.15, 3.8]);
 
-    let newMesh = new THREE.Mesh(
-      new THREE.SphereBufferGeometry(0.05, 20, 20),
-      new THREE.MeshBasicMaterial({ color: 0x0033ff })
-    )
-
-
-
-    let position = convertLatLngToCordinate3(allCountries[i].latitude, allCountries[i].longitude, 5.01)
-
-    newMesh.position.set(position.x, position.y, position.z)
-    groupCities.add(newMesh);
-
-    let newMesh2 = new THREE.Mesh(
-      new THREE.SphereBufferGeometry(0.05, 20, 20),
-      new THREE.MeshBasicMaterial({ color: 0x00ccaa })
-    )
-
-    let position2 = convertLatLngToCordinate3(allCountries[i].latitude, allCountries[i].longitude, 5.01 + (height * year))
-    newMesh2.position.set(position2.x, position2.y, position2.z)
-    groupCities.add(newMesh2);
-
-    //newMesh2.callback = function() { console.log( this.name ); }
+//     let newMesh = new THREE.Mesh(
+//       new THREE.SphereBufferGeometry(0.05, 20, 20),
+//       new THREE.MeshBasicMaterial({ color: 0x0033ff })
+//     )
 
 
-    let finalPop = allCountries[i].population * year;
-    newMesh.name = allCountries[i].country;
-    newMesh2.name = allCountries[i].country;
-    newMesh.population = finalPop;
-    newMesh2.population = finalPop;
 
-    // var  countryDisplay = null;
-    // var  populationDisplay = null;
+//     let position = convertLatLngToCordinate3(allCountries[i].latitude, allCountries[i].longitude, 5.01)
+
+//     newMesh.position.set(position.x, position.y, position.z)
+//     groupCities.add(newMesh);
+
+//     let newMesh2 = new THREE.Mesh(
+//       new THREE.SphereBufferGeometry(0.05, 20, 20),
+//       new THREE.MeshBasicMaterial({ color: 0x00ccaa })
+//     )
+
+//     let position2 = convertLatLngToCordinate3(allCountries[i].latitude, allCountries[i].longitude, 5.01 + (height * year))
+//     newMesh2.position.set(position2.x, position2.y, position2.z)
+//     groupCities.add(newMesh2);
+
+//     //newMesh2.callback = function() { console.log( this.name ); }
 
 
-    if (countryDisplay == allCountries[i].country) {
-      name.innerHTML = countryDisplay;
-      population.innerHTML = numberWithCommas(parseInt(finalPop));
-    }
+//     let finalPop = allCountries[i].population * year;
+//     newMesh.name = allCountries[i].country;
+//     newMesh2.name = allCountries[i].country;
+//     newMesh.population = finalPop;
+//     newMesh2.population = finalPop;
 
 
-    getCurve(position, position2, allCountries[i].country, finalPop);
-  }
-  scene.add(groupCities);
-}
+//     if (countryDisplay == allCountries[i].country) {
+//       name.innerHTML = countryDisplay;
+//       population.innerHTML = numberWithCommas(parseInt(finalPop));
+//     }
+
+
+//     getCurve(position, position2, allCountries[i].country, finalPop);
+//   }
+//   scene.add(groupCities);
+// }
 
 
 
@@ -603,87 +630,140 @@ let center = new THREE.Mesh(
 center.position.set(0, 0, 0);
 groupCities2.add(center);
 
-let createTemp = function (year) {
+// let createTemp = function (year) {
 
 
-  scene.remove(groupCities2);
-  groupCities2 = new THREE.Group();
+//   scene.remove(groupCities2);
+//   groupCities2 = new THREE.Group();
 
-  // let city = document.getElementById("countryDisplay");
-  // let temprature = document.getElementById("populationDisplay");
-  // city.innerHTML = "-----";
-  // temprature.innerHTML = "-----";
-
-
-  for (const [key, value] of tempMap.entries()) {
-    // console.log(key, value);
-    if (year == key.split("_")[1]) {
-
-      let realTemp = value.AverageTemperature;
-
-      let red = parseInt(convertRange(realTemp, [-20, 50], [0, 255]));
-
-      let blue = parseInt(convertRange(realTemp, [-20, 50], [255, 0]));
+//   // let city = document.getElementById("countryDisplay");
+//   // let temprature = document.getElementById("populationDisplay");
+//   // city.innerHTML = "-----";
+//   // temprature.innerHTML = "-----";
 
 
-      //  if(red > 150){
-      //   blue = 0
-      //  }
-      //console.log(key,"red",red,"blue",blue);
-      const white = new THREE.Color('rgb(' + red + ',0,' + blue + ')');
+//   for (const [key, value] of tempMap.entries()) {
+//     // console.log(key, value);
+//     if (year == key.split("_")[1]) {
 
-      let newMesh = new THREE.Mesh(
-        new THREE.PlaneBufferGeometry(0.2, 0.2),
-        new THREE.MeshBasicMaterial({ color: white, side: THREE.DoubleSide, transparent: true, opacity: 0.78 })
-      )
+//       let realTemp = value.AverageTemperature;
 
+//       let red = parseInt(convertRange(realTemp, [-20, 50], [0, 255]));
+
+//       let blue = parseInt(convertRange(realTemp, [-20, 50], [255, 0]));
 
 
-      let position = convertLatLngToCordinate3(value.Latitude, value.Longitude, 5.0)
-      // //("pos1 " + allCountries[i].latitude  + "  "+  allCountries[i].longitude  );
-      newMesh.position.set(position.x, position.y, position.z);
+//       //  if(red > 150){
+//       //   blue = 0
+//       //  }
+//       //console.log(key,"red",red,"blue",blue);
+//       const white = new THREE.Color('rgb(' + red + ',0,' + blue + ')');
 
-      groupCities2.add(newMesh);
-      newMesh.lookAt(center.position);
-
-      newMesh.city = value.City;
-      newMesh.temprature = realTemp;
-
-      if (cityDisplay == value.City) {
-        city.innerHTML = value.City;
-        temprature.innerHTML = realTemp + " °C";
-      }
-
-    }
-  }
-  scene.add(groupCities2)
-}
+//       let newMesh = new THREE.Mesh(
+//         new THREE.PlaneBufferGeometry(0.2, 0.2),
+//         new THREE.MeshBasicMaterial({ color: white, side: THREE.DoubleSide, transparent: true, opacity: 0.78 })
+//       )
 
 
 
+//       let position = convertLatLngToCordinate3(value.Latitude, value.Longitude, 5.0)
+//       // //("pos1 " + allCountries[i].latitude  + "  "+  allCountries[i].longitude  );
+//       newMesh.position.set(position.x, position.y, position.z);
 
-var createCrop = function (cropFilter, yearLeft, yearRight) {
+//       groupCities2.add(newMesh);
+//       newMesh.lookAt(center.position);
+
+//       newMesh.city = value.City;
+//       newMesh.temprature = realTemp;
+
+//       if (cityDisplay == value.City) {
+//         city.innerHTML = value.City;
+//         temprature.innerHTML = realTemp + " °C";
+//       }
+
+//     }
+//   }
+//   scene.add(groupCities2)
+// }
+
+
+
+
+var createCrop = function () {
 
   scene.remove(groupCities);
   scene.remove(groupCities2);
   scene.remove(groupCrops);
+  scene.remove(positiveMesh);
+  scene.remove(negativeMesh);
+
   groupCrops = new THREE.Group();
+  positiveMesh = new THREE.Group();
+  negativeMesh = new THREE.Group();
 
   let colorNum = 0;
   for (let [key, value] of cropMap) {
     if (selectedCrops.has(key)) {
-      for(let i = 0 ; i < value.length ; i++){
-        
+      for (let i = 0; i < value.length; i++) {
+        let yieldChange = 0;
+
         let newMesh = new THREE.Mesh(
-          new THREE.CircleGeometry( 0.08, 32 ),
+          new THREE.CircleGeometry(0.08, 32),
           new THREE.MeshBasicMaterial({ color: cropColors[colorNum], side: THREE.DoubleSide, transparent: true, opacity: 0.78 })
         )
 
+
         let position = convertLatLngToCordinate3(value[i].Latitude, value[i].Longitude, 5.0 + (0.008 * colorNum))
         newMesh.position.set(position.x, position.y, position.z);
-  
+
         groupCrops.add(newMesh);
+
+        newMesh.propId = value[i].Location + value[i].Crop + value[i].Latitude + value[i].Longitude;
         newMesh.lookAt(center.position);
+
+        //console.log(cropIdMap.get(newMesh.propId))
+        let per = cropIdMap.get(newMesh.propId);
+        let totalNT = 0;
+        let totalCT = 0;
+        for(let x = 0 ; x < per.length ; x++){
+          totalCT += per[x]["Yield of CT"];
+          totalNT += per[x]["Yield of NT"];
+        }
+
+        yieldChange = ((totalNT - totalCT)/(totalCT)) * 0.7;
+        ///// positive
+
+        if (yieldChange >= 0) {
+          let newMeshPositive = new THREE.Mesh(
+            new THREE.SphereBufferGeometry(0.03, 20, 20),
+            new THREE.MeshBasicMaterial({ color: 0x0033ff })
+          )
+
+          let positionP = convertLatLngToCordinate3(value[i].Latitude, value[i].Longitude, 5.04 + yieldChange)
+          newMeshPositive.position.set(positionP.x, positionP.y, positionP.z);
+
+
+          positiveMesh.add(newMeshPositive);
+          getCurvePercent(position, positionP, "blue");
+        }
+
+
+
+
+        ///// negative
+
+        else if (yieldChange < 0) {
+          let newMeshNegative = new THREE.Mesh(
+            new THREE.SphereBufferGeometry(0.03, 20, 20),
+            new THREE.MeshBasicMaterial({ color: 0xff3300 })
+          )
+
+          let positionN = convertLatLngToCordinate3(value[i].Latitude, value[i].Longitude, 5.04 + (-1 * yieldChange))
+          newMeshNegative.position.set(positionN.x, positionN.y, positionN.z);
+
+          negativeMesh.add(newMeshNegative);
+          getCurvePercent(position, positionN, "red");
+        }
 
       }
     }
@@ -691,6 +771,12 @@ var createCrop = function (cropFilter, yearLeft, yearRight) {
   }
 
   scene.add(groupCrops);
+
+  if (mainMode == "positive") {
+    scene.add(positiveMesh);
+  } else if (mainMode == "negative") {
+    scene.add(negativeMesh);
+  }
 }
 
 
@@ -708,33 +794,6 @@ function animate() {
 
 
 
-
-
-// var slider = document.getElementById('myRange')
-// var output = document.getElementById('demo')
-// output.innerHTML = "<b> 2012-" + slider.value + "-01" + " </b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    Max : 2017";
-
-// slider.oninput = function () {
-//   output.innerHTML = this.value + " </b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    Max : 2012-12-01";
-//   createTemp(this.value);
-
-// }
-
-
-
-// var slider2 = document.getElementById('myRange2')
-// var output2 = document.getElementById('demo2')
-// output2.innerHTML = "<b>" + slider2.value + " </b>   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      Max : 2021"
-
-// slider2.oninput = function () {
-//   output2.innerHTML = "<b>" + this.value + " </b>   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;     Max : 2021"
-//   createPop(this.value);
-
-// }
-
-// function ValidateCropSelection(){
-//   console.log("hello");
-// }
 
 let cameraAnimate = function (lat, lng, camera) {
   var targetPosition = convertLatLngToCordinate3(lat, lng, 200);
@@ -826,38 +885,123 @@ addEventListener('mouseup', () => {
 
 
 /////////////
-
-// set the dimensions and margins of the graph
-var margin = {top: 10, right: 100, bottom: 30, left: 30},
-    width = 460 - margin.left - margin.right,
-    height = 400 - margin.top - margin.bottom;
+var margin = { top: 10, right: 100, bottom: 30, left: 30 },
+  width = 460 - margin.left - margin.right,
+  height = 400 - margin.top - margin.bottom;
 
 // append the svg object to the body of the page
 var svg = d3.select("#myDataviz")
   .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
   .append("g")
-    .attr("transform",
-          "translate(" + margin.left + "," + margin.top + ")");
+  .attr("transform",
+    "translate(" + margin.left + "," + margin.top + ")");
+
 
 //Read the data
-d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_connectedscatter.csv", function(data) {
+var createD3 = function (graphData, changeScale, leftL, rightL) {
+
+
+  // set the dimensions and margins of the graph
+
+
+  d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_connectedscatter.csv", function (data) {
+
+
+    svg = d3.select("#myDataviz");
+    try {
+      svg.selectAll("*").remove();
+    } catch (exception) {
+      console.log(exception);
+    };
+
+    svg = d3.select("#myDataviz")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform",
+        "translate(" + margin.left + "," + margin.top + ")");
 
     // List of groups (here I have one group per column)
     var allGroup = ["valueA", "valueB", "valueC"]
 
     // Reformat the data: we need an array of arrays of {x, y} tuples
-    var dataReady = allGroup.map( function(grpName) { // .map allows to do something for each element of the list
+    var dataReady = allGroup.map(function (grpName) { // .map allows to do something for each element of the list
       return {
         name: grpName,
-        values: data.map(function(d) {
-          return {time: d.time, value: +d[grpName]};
+        values: data.map(function (d) {
+          return { time: d.time, value: +d[grpName] };
         })
       };
     });
     // I strongly advise to have a look to dataReady with
+    console.log("blink", graphData);
+    console.log("data", dataReady);
+
+    console.log("zzzzz", graphData)
+    var minYeild = graphData[0][0]["Yield of CT"];
+    var maxYeild = graphData[0][0]["Yield of CT"];
+    var leftYear = graphData[0][0]["Harvest year"];
+    var rightYear = graphData[0][graphData[0].length - 1]["Harvest year"];
+
+
+
+
+    dataReady = [];
+    for (let i = 0; i < graphData.length; i++) {
+      for (let x = 0; x < graphData[i].length; x++) {
+        //console.log("m", graphData[i][x]);
+        if (graphData[i][x]["Yield of CT"] <= minYeild) {
+          minYeild = graphData[i][x]["Yield of CT"];
+        }
+        if (graphData[i][x]["Yield of NT"] <= minYeild) {
+          minYeild = graphData[i][x]["Yield of NT"];
+        }
+
+        if (graphData[i][x]["Yield of CT"] >= maxYeild) {
+          maxYeild = graphData[i][x]["Yield of CT"];
+        }
+        if (graphData[i][x]["Yield of NT"] >= maxYeild) {
+          maxYeild = graphData[i][x]["Yield of NT"];
+        }
+
+        if (graphData[i][x]["Harvest year"] <= leftYear) {
+          leftYear = graphData[i][x]["Harvest year"]
+        }
+        if (graphData[i][x]["Harvest year"] >= rightYear) {
+          rightYear = graphData[i][x]["Harvest year"]
+        }
+
+
+      }
+      dataReady.push({ name: graphData[i][0]["Crop"] + " " + graphData[i][0]["Location"], values: graphData[i] });
+    }
+    if (changeScale) {
+      document.getElementById('min year').innerHTML = "min : " + leftYear;
+      document.getElementById('max year').innerHTML = "max : " + rightYear;
+      document.getElementById('sleft').innerHTML = "&nbsp;" + leftYear;
+      document.getElementById('sright').innerHTML = "&nbsp;" + rightYear;
+
+      document.getElementById('input-left').min = leftYear;
+      document.getElementById('input-left').max = rightYear;
+      document.getElementById('input-left').value = leftYear;
+
+      document.getElementById('input-right').min = leftYear;
+      document.getElementById('input-right').max = rightYear;
+      document.getElementById('input-right').value = rightYear;
+
+      document.getElementsByClassName("range")[0].style["left"] = "0%";
+      document.getElementsByClassName("range")[0].style["right"] = "0%";
+
+      document.getElementsByClassName("thumb left")[0].style["left"] = "0%";
+      document.getElementsByClassName("thumb right")[0].style["right"] = "0%";
+    }
     // console.log(dataReady)
+
+    //console.log("ready", dataReady)
+    //console.log(minYeild,maxYeild,leftYear,rightYear, width);
 
     // A color scale: one color for each group
     var myColor = d3.scaleOrdinal()
@@ -866,31 +1010,61 @@ d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/da
 
     // Add X axis --> it is a date format
     var x = d3.scaleLinear()
-      .domain([0,10])
-      .range([ 0, width ]);
+      .domain([leftL ? leftL : leftYear, rightL ? rightL : rightYear])
+      .range([0, width]);
     svg.append("g")
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(x));
 
     // Add Y axis
     var y = d3.scaleLinear()
-      .domain( [0,20])
-      .range([ height, 0 ]);
+      .domain([minYeild, maxYeild])
+      .range([height, 0]);
     svg.append("g")
       .call(d3.axisLeft(y));
 
     // Add the lines
     var line = d3.line()
-      .x(function(d) { return x(+d.time) })
-      .y(function(d) { return y(+d.value) })
+      .x(function (d) { return x(+d["Harvest year"]) })
+      .y(function (d) { return y(+d["Yield of CT"]) })
     svg.selectAll("myLines")
       .data(dataReady)
       .enter()
       .append("path")
-        .attr("d", function(d){ return line(d.values) } )
-        .attr("stroke", function(d){ return myColor(d.name) })
-        .style("stroke-width", 4)
-        .style("fill", "none")
+      .attr("stroke-dasharray", "5,5")
+      .attr("d", function (d) { return line(d.values) })
+      .attr("stroke", function (d) { return myColor(d.name) })
+      .style("stroke-width", 4)
+      .style("fill", "none")
+
+
+
+    var line = d3.line()
+      .x(function (d) { return x(+d["Harvest year"]) })
+      .y(function (d) { return y(+d["Yield of NT"]) })
+    svg.selectAll("myLines")
+      .data(dataReady)
+      .enter()
+      .append("path")
+      .attr("stroke-dasharray", "100,0.1")
+      .attr("d", function (d) { return line(d.values) })
+      .attr("stroke", function (d) { return myColor(d.name) })
+      .style("stroke-width", 4)
+      .style("fill", "none")
+
+
+    //   var line2 = d3.line()
+    //   .x(function (d) { return x(+d["Harvest year"]) })
+    //   .y(function (d) { return y(+d["Yield of CT"]) })
+    // svg.selectAll("myLines")
+    //   .data(dataReady)
+    //   .enter()
+    //   .append("path")
+    //   .attr("stroke-dasharray", "100,0.1")
+    //   .attr("d", function (d) { return line(d.values) })
+    //   .attr("stroke", function (d) { return myColor(d.name) })
+    //   .style("stroke-width", 4)
+    //   .style("fill", "none")
 
     // Add the points
     svg
@@ -898,33 +1072,69 @@ d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/da
       .selectAll("myDots")
       .data(dataReady)
       .enter()
-        .append('g')
-        .style("fill", function(d){ return myColor(d.name) })
+      .append('g')
+      .style("fill", function (d) { return myColor(d.name) })
       // Second we need to enter in the 'values' part of this group
       .selectAll("myPoints")
-      .data(function(d){ return d.values })
+      .data(function (d) { return d.values })
       .enter()
       .append("circle")
-        .attr("cx", function(d) { return x(d.time) } )
-        .attr("cy", function(d) { return y(d.value) } )
-        .attr("r", 5)
-        .attr("stroke", "white")
+      .attr("cx", function (d) { return x(d["Harvest year"]) })
+      .attr("cy", function (d) { return y(d["Yield of CT"]) })
+      .attr("r", 5)
+      .attr("stroke", "white")
+
+
+
+    svg
+      // First we need to enter in a group
+      .selectAll("myDots")
+      .data(dataReady)
+      .enter()
+      .append('g')
+      .style("fill", function (d) { return myColor(d.name) })
+      // Second we need to enter in the 'values' part of this group
+      .selectAll("myPoints")
+      .data(function (d) { return d.values })
+      .enter()
+      .append("circle")
+      .attr("cx", function (d) { return x(d["Harvest year"]) })
+      .attr("cy", function (d) { return y(d["Yield of NT"]) })
+      .attr("r", 5)
+      .attr("stroke", "white")
 
     // Add a legend at the end of each line
     svg
       .selectAll("myLabels")
       .data(dataReady)
       .enter()
-        .append('g')
-        .append("text")
-          .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; }) // keep only the last value of each time series
-          .attr("transform", function(d) { return "translate(" + x(d.value.time) + "," + y(d.value.value) + ")"; }) // Put the text at the position of the last point
-          .attr("x", 12) // shift the text a bit more right
-          .text(function(d) { return d.name; })
-          .style("fill", function(d){ return myColor(d.name) })
-          .style("font-size", 15)
+      .append('g')
+      .append("text")
+      .datum(function (d) { return { name: d.name, value: d.values[d.values.length - 1] }; }) // keep only the last value of each time series
+      .attr("transform", function (d) { return "translate(" + x(d.value["Harvest year"]) + "," + y(d.value["Yield of CT"]) + ")"; }) // Put the text at the position of the last point
+      .attr("x", 12) // shift the text a bit more right
+      .text(function (d) { return d.name; })
+      .style("fill", function (d) { return myColor(d.name) })
+      .style("font-size", 15)
 
-})
+  })
+
+
+
+
+
+  // let minYeild = graphData[0][0]["Yield of CT"];
+  // let maxYeild = graphData[0][0]["Yield of CT"];
+  // let leftYear = graphData[0][0]["Harvest year"];
+  // let rightYear = graphData[0][graphData[0].length - 1]["Harvest year"];
+
+
+
+
+
+}
+
+
 
 /////////////
 
@@ -937,60 +1147,71 @@ var thumbRight = document.querySelector(".slider > .thumb.right");
 var range = document.querySelector(".slider > .range");
 
 function setLeftValue() {
-	var _this = inputLeft,
-		min = parseInt(_this.min),
-		max = parseInt(_this.max);
+  var _this = inputLeft,
+    min = parseInt(_this.min),
+    max = parseInt(_this.max);
 
-	_this.value = Math.min(parseInt(_this.value), parseInt(inputRight.value) - 1);
+  _this.value = Math.min(parseInt(_this.value), parseInt(inputRight.value) - 1);
 
-	var percent = ((_this.value - min) / (max - min)) * 100;
+  var percent = ((_this.value - min) / (max - min)) * 100;
 
-	thumbLeft.style.left = percent + "%";
-	range.style.left = percent + "%";
+  thumbLeft.style.left = percent + "%";
+  range.style.left = percent + "%";
+
+  console.log("x gon " + _this.value);
+  document.getElementById('sleft').innerHTML = "&nbsp;" + _this.value;
+
+  globalLeft = _this.value;
+  createD3(cropArr, false, _this.value, globalRight ? globalRight : null);
+
 }
 setLeftValue();
 
 function setRightValue() {
-	var _this = inputRight,
-		min = parseInt(_this.min),
-		max = parseInt(_this.max);
+  var _this = inputRight,
+    min = parseInt(_this.min),
+    max = parseInt(_this.max);
 
-	_this.value = Math.max(parseInt(_this.value), parseInt(inputLeft.value) + 1);
+  _this.value = Math.max(parseInt(_this.value), parseInt(inputLeft.value) + 1);
 
-	var percent = ((_this.value - min) / (max - min)) * 100;
+  var percent = ((_this.value - min) / (max - min)) * 100;
 
-	thumbRight.style.right = (100 - percent) + "%";
-	range.style.right = (100 - percent) + "%";
+  thumbRight.style.right = (100 - percent) + "%";
+  range.style.right = (100 - percent) + "%";
+  document.getElementById('sright').innerHTML = "&nbsp;" + _this.value;
+
+  globalRight = _this.value;
+  createD3(cropArr, false, globalLeft ? globalLeft : null, _this.value);
 }
 setRightValue();
 
 inputLeft.addEventListener("input", setLeftValue);
 inputRight.addEventListener("input", setRightValue);
 
-inputLeft.addEventListener("mouseover", function() {
-	thumbLeft.classList.add("hover");
+inputLeft.addEventListener("mouseover", function () {
+  thumbLeft.classList.add("hover");
 });
-inputLeft.addEventListener("mouseout", function() {
-	thumbLeft.classList.remove("hover");
+inputLeft.addEventListener("mouseout", function () {
+  thumbLeft.classList.remove("hover");
 });
-inputLeft.addEventListener("mousedown", function() {
-	thumbLeft.classList.add("active");
+inputLeft.addEventListener("mousedown", function () {
+  thumbLeft.classList.add("active");
 });
-inputLeft.addEventListener("mouseup", function() {
-	thumbLeft.classList.remove("active");
+inputLeft.addEventListener("mouseup", function () {
+  thumbLeft.classList.remove("active");
 });
 
-inputRight.addEventListener("mouseover", function() {
-	thumbRight.classList.add("hover");
+inputRight.addEventListener("mouseover", function () {
+  thumbRight.classList.add("hover");
 });
-inputRight.addEventListener("mouseout", function() {
-	thumbRight.classList.remove("hover");
+inputRight.addEventListener("mouseout", function () {
+  thumbRight.classList.remove("hover");
 });
-inputRight.addEventListener("mousedown", function() {
-	thumbRight.classList.add("active");
+inputRight.addEventListener("mousedown", function () {
+  thumbRight.classList.add("active");
 });
-inputRight.addEventListener("mouseup", function() {
-	thumbRight.classList.remove("active");
+inputRight.addEventListener("mouseup", function () {
+  thumbRight.classList.remove("active");
 });
 
 
