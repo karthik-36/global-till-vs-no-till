@@ -94,7 +94,8 @@ html { overflow: hidden;
   font: 1rem 'Fira Sans', sans-serif;
 }
 
-#myDataviz{
+
+#myDatavizContainer{
   position: absolute;
   width: 33%;
   text-align: center;
@@ -105,6 +106,10 @@ html { overflow: hidden;
   color : rgb(255, 255, 255);
   font: 1rem 'Fira Sans', sans-serif;
   background-color: rgb(255, 255, 255);
+}
+
+#myDataviz{
+ 
 }
 .float-left-child {
   float: left;

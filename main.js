@@ -886,7 +886,7 @@ addEventListener('mouseup', () => {
 
 /////////////
 var margin = { top: 10, right: 100, bottom: 30, left: 30 },
-  width = 460 - margin.left - margin.right,
+  width = 560 - margin.left - margin.right,
   height = 400 - margin.top - margin.bottom;
 
 // append the svg object to the body of the page
@@ -1135,6 +1135,14 @@ var createD3 = function (graphData, changeScale, leftL, rightL) {
 }
 
 
+var resetBtn = function(){
+
+  cropArr = [];
+  createD3();
+  createCrop();
+}
+
+document.getElementById("btnResetReal").addEventListener("click", resetBtn );
 
 /////////////
 
