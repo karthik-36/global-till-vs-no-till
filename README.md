@@ -1,5 +1,12 @@
 # Earth's Global till vs no till - Visualization
 
+
+instructions:
+
+1) open cmd/terminal
+2) install all packages by typing "npm install"
+3) to run the vite project tpe "npm run dev"
+
 # Sources used
 
  - Various THREE.js tutroials by <br />
