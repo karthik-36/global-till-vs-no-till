@@ -1,9 +1,4 @@
-# Earth's population/temprature - Visualization
-
-# Demo Video
-  - https://www.youtube.com/watch?v=EZ1YYV2OIxY
-
-
+# Earth's Global till vs no till - Visualization
 
 # Sources used
 
