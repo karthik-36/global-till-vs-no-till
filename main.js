@@ -304,14 +304,6 @@ function checkClickCrop() {
 
 
 
-let tempMap = new Map();
-
-for (let i = allTemprature.length - 1; i != -1; i--) {
-  let postFix = parseInt(allTemprature[i].dt.split("-")[1]);
-  if (!tempMap.has(allTemprature[i].City + "_" + postFix)) {
-    tempMap.set(allTemprature[i].City + "_" + postFix, allTemprature[i])
-  }
-}
 
 let cropMap = new Map();
 
@@ -327,9 +319,6 @@ allCountries = allCountries.ref_country_codes;
 
 let map = new Map();
 
-for (let i = 0; i < population.length; i++) {
-  map.set(population[i].country, population[i].population);
-}
 
 
 

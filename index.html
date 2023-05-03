@@ -320,18 +320,7 @@
         console.log('complete')
       })
 
-    $.getJSON('population.json', function (json) {
-      population = json
-    })
-      .done(function () {
 
-      })
-      .fail(function (e) {
-        console.log(e)
-      })
-      .always(function () {
-        console.log('complete')
-      })
 
     $.getJSON('allCrops.json', function (json) {
 
@@ -383,37 +372,6 @@
       }
     }
 
-    $.getJSON('temprature2012.json', function (json) {
-      json = json.map((row) => {
-        let lat = row.Latitude
-        let lng = row.Longitude
-
-        if (lat[lat.length - 1] == 'S') {
-          row.Latitude = -parseFloat(lat.substring(0, lat.length - 1))
-        } else {
-          row.Latitude = parseFloat(lat.substring(0, lat.length - 1))
-        }
-
-        if (lng[lng.length - 1] == 'W') {
-          row.Longitude = -parseFloat(lng.substring(0, lng.length - 1))
-        } else {
-          row.Longitude = parseFloat(lng.substring(0, lng.length - 1))
-        }
-
-        return row
-      })
-
-      allTemprature = json
-    })
-      .done(function () {
-        console.log('second success')
-      })
-      .fail(function (e) {
-        console.log(e)
-      })
-      .always(function () {
-        console.log('complete')
-      })
 
     //
   </script>
